@@ -17,14 +17,7 @@ import {
   Droplets,
   ExternalLink,
   QrCode,
-  User,
-  Store,
-  Hash,
-  CalendarDays,
-  Repeat2,
   UploadCloud,
-  Pencil,
-  Check,
 } from "lucide-react";
 
 type FormState = {
@@ -41,6 +34,7 @@ type FormState = {
 
 export default function Page() {
   const [showQr, setShowQr] = useState(true);
+
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
@@ -67,7 +61,13 @@ export default function Page() {
       "Des vitres propres, nettes et brillantes au Havre et alentours.",
     phone: "0669398480",
     email: "bsklyn76@gmail.com",
+
+    // APP QR
     website: "https://bs-klyn-app.vercel.app/",
+
+    // SITE PRINCIPAL
+    mainSite: "https://bsklyn.netlify.app/",
+
     city: "Le Havre",
     whatsapp: "33669398480",
   };
@@ -163,9 +163,9 @@ export default function Page() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#05070b] text-[#f5f8ff]">
-
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(20,119,255,.35),transparent_28%),radial-gradient(circle_at_top_right,rgba(20,119,255,.20),transparent_22%),linear-gradient(180deg,#04060a_0%,#05070b_100%)]" />
 
+      {/* HERO */}
       <section className="relative px-4 pb-7 pt-6">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -173,7 +173,7 @@ export default function Page() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-md"
         >
-          <div className="mb-5 flex items-center justify-between gap-3 rounded-[22px] border border-white/10 bg-[#0b111d]/80 p-4 shadow-[0_0_0_1px_rgba(83,154,255,.25),0_0_24px_rgba(18,147,255,.18)] backdrop-blur-xl">
+          <div className="mb-5 flex items-center justify-between gap-3 rounded-[22px] border border-white/10 bg-[#0b111d]/80 p-4 backdrop-blur-xl">
             <div>
               <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#33a4ff]">
                 QR BUSINESS CARD
@@ -226,6 +226,7 @@ export default function Page() {
         </motion.div>
       </section>
 
+      {/* MAIN */}
       <main className="mx-auto max-w-md space-y-5 px-4 pb-28">
 
         {/* QR CODE */}
@@ -265,6 +266,27 @@ export default function Page() {
             Afficher le QR Code
           </button>
         )}
+
+        {/* AVANTAGES */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            [ShieldCheck, "Soin"],
+            [Clock, "Rapide"],
+            [Star, "Brillant"],
+          ].map(([Icon, label]) => {
+            const IconComponent = Icon as any;
+
+            return (
+              <div
+                key={label}
+                className="rounded-[22px] border border-white/10 bg-gradient-to-b from-[#0a111d]/95 to-[#070c16]/95 p-4 text-center"
+              >
+                <IconComponent className="mx-auto mb-2 h-6 w-6 text-[#1293ff]" />
+                <p className="text-xs font-black">{label}</p>
+              </div>
+            );
+          })}
+        </div>
 
         {/* FORMULAIRE */}
         <section className="rounded-[28px] border border-[#5498ff]/30 bg-gradient-to-b from-[#08101c]/95 to-[#05080e]/95 p-5">
@@ -345,7 +367,6 @@ export default function Page() {
               onChange={(e) => update("message", e.target.value)}
             />
 
-            {/* PHOTOS */}
             <input
               ref={fileInputRef}
               type="file"
@@ -364,7 +385,6 @@ export default function Page() {
               Ajouter des photos
             </button>
 
-            {/* ENVOI */}
             <button
               type="button"
               onClick={sendEmailRequest}
@@ -392,6 +412,31 @@ export default function Page() {
           </div>
         </section>
 
+        {/* SITE INTERNET */}
+        <section className="rounded-[28px] border border-[#5498ff]/25 bg-gradient-to-b from-[#0a111d]/95 to-[#070c16]/95 p-5 text-center">
+          <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">
+            Site internet
+          </p>
+
+          <h2 className="mt-2 text-2xl font-black text-white">
+            Voir le site complet BS Klyn
+          </h2>
+
+          <p className="mt-2 text-sm leading-snug text-[#b8c4d8]">
+            Découvrez les prestations, informations et présentation complète de BS Klyn.
+          </p>
+
+          <a
+            href={company.mainSite}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 inline-flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] text-base font-black text-white"
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Ouvrir le site BS Klyn
+          </a>
+        </section>
+
         {/* CONTACT */}
         <section className="rounded-[28px] border border-white/10 bg-gradient-to-b from-[#0a111d]/95 to-[#070c16]/95 p-5 text-sm font-semibold text-[#b8c4d8]">
           <div className="space-y-3">
@@ -411,15 +456,6 @@ export default function Page() {
               {company.email}
             </div>
 
-            <a
-              className="flex items-center gap-2 text-[#31a2ff]"
-              href={company.website}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Site web BS Klyn
-            </a>
           </div>
         </section>
       </main>
