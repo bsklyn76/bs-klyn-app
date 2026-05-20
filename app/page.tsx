@@ -41,7 +41,10 @@ type FormState = {
 
 export default function Page() {
   const [showQr, setShowQr] = useState(true);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "sending" | "success" | "error"
+  >("idle");
+
   const [photos, setPhotos] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -60,10 +63,11 @@ export default function Page() {
   const company = {
     name: "BS Klyn",
     activity: "Nettoyage de vitre",
-    tagline: "Des vitres propres, nettes et brillantes au Havre et alentours.",
+    tagline:
+      "Des vitres propres, nettes et brillantes au Havre et alentours.",
     phone: "0669398480",
     email: "bsklyn76@gmail.com",
-    website: "https://bsklyn.netlify.app/",
+    website: "https://bs-klyn-app.vercel.app/",
     city: "Le Havre",
     whatsapp: "33669398480",
   };
@@ -82,18 +86,26 @@ export default function Page() {
 
   const update = (key: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (submitStatus !== "idle") setSubmitStatus("idle");
+
+    if (submitStatus !== "idle") {
+      setSubmitStatus("idle");
+    }
   };
 
   const handlePhotos = (files: FileList | null) => {
     if (!files) return;
+
     const selected = Array.from(files).slice(0, 5);
     setPhotos(selected);
-    if (submitStatus !== "idle") setSubmitStatus("idle");
   };
 
   const sendEmailRequest = async () => {
-    if (!form.nom || !form.telephone || !form.nombreVitres || !form.adresse) {
+    if (
+      !form.nom ||
+      !form.telephone ||
+      !form.nombreVitres ||
+      !form.adresse
+    ) {
       setSubmitStatus("error");
       return;
     }
@@ -102,32 +114,35 @@ export default function Page() {
       setSubmitStatus("sending");
 
       const formData = new FormData();
-      formData.append("entreprise", company.name);
+
       formData.append("nom", form.nom);
       formData.append("telephone", form.telephone);
       formData.append("email", form.email);
-      formData.append("client", form.typeClient);
+      formData.append("typeClient", form.typeClient);
       formData.append("prestation", form.prestation);
-      formData.append("nombre_de_vitres_ou_vitrines", form.nombreVitres);
+      formData.append("nombreVitres", form.nombreVitres);
       formData.append("adresse", form.adresse);
       formData.append("ville", form.ville);
       formData.append("message", form.message);
-      formData.append("source", "Mini-app QR BS Klyn");
 
       photos.forEach((photo, index) => {
-        formData.append(`photo_${index + 1}`, photo);
+        formData.append(`photo_${index}`, photo);
       });
 
       const response = await fetch(formspreeEndpoint, {
         method: "POST",
-        headers: { Accept: "application/json" },
+        headers: {
+          Accept: "application/json",
+        },
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Erreur formulaire");
+      if (!response.ok) {
+        throw new Error("Erreur");
+      }
 
       setSubmitStatus("success");
-      setPhotos([]);
+
       setForm({
         nom: "",
         telephone: "",
@@ -139,6 +154,8 @@ export default function Page() {
         ville: "Le Havre",
         message: "",
       });
+
+      setPhotos([]);
     } catch {
       setSubmitStatus("error");
     }
@@ -146,6 +163,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#05070b] text-[#f5f8ff]">
+
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(20,119,255,.35),transparent_28%),radial-gradient(circle_at_top_right,rgba(20,119,255,.20),transparent_22%),linear-gradient(180deg,#04060a_0%,#05070b_100%)]" />
 
       <section className="relative px-4 pb-7 pt-6">
@@ -157,30 +175,50 @@ export default function Page() {
         >
           <div className="mb-5 flex items-center justify-between gap-3 rounded-[22px] border border-white/10 bg-[#0b111d]/80 p-4 shadow-[0_0_0_1px_rgba(83,154,255,.25),0_0_24px_rgba(18,147,255,.18)] backdrop-blur-xl">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#33a4ff]">QR Business Card</p>
-              <p className="text-lg font-black leading-tight">{company.name}</p>
+              <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#33a4ff]">
+                QR BUSINESS CARD
+              </p>
+
+              <p className="text-lg font-black">
+                BS Klyn
+              </p>
             </div>
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(18,147,255,.12)] shadow-[0_0_0_1px_rgba(83,154,255,.35),0_0_24px_rgba(18,147,255,.2)]">
+
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(18,147,255,.12)]">
               <Droplets className="h-6 w-6 text-[#1293ff]" />
             </div>
           </div>
 
-          <div className="rounded-[30px] border border-white/10 bg-gradient-to-b from-[#0b111d]/95 to-[#070c16]/95 p-6 shadow-[0_0_0_1px_rgba(83,154,255,.35),0_0_30px_rgba(18,147,255,.23)]">
+          <div className="rounded-[30px] border border-white/10 bg-gradient-to-b from-[#0b111d]/95 to-[#070c16]/95 p-6">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#31a2ff]/60 px-3 py-2 text-sm font-extrabold text-[#31a2ff]">
-              <Sparkles className="h-4 w-4" /> {company.activity}
+              <Sparkles className="h-4 w-4" />
+              {company.activity}
             </div>
-            <h1 className="text-5xl font-black leading-[0.94] tracking-[-0.04em]">{company.name}</h1>
-            <p className="mt-4 text-xl font-bold leading-snug text-[#e9f1ff]">{company.tagline}</p>
+
+            <h1 className="text-5xl font-black">
+              BS Klyn
+            </h1>
+
+            <p className="mt-4 text-xl font-bold text-[#e9f1ff]">
+              {company.tagline}
+            </p>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <a href={`tel:${company.phone}`}>
-                <button className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] text-base font-black text-white shadow-[0_0_0_1px_rgba(83,154,255,.35),0_0_24px_rgba(18,147,255,.25)] transition hover:scale-[1.02]">
-                  <Phone className="mr-2 h-4 w-4" /> Appeler
+                <button className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] text-base font-black text-white">
+                  <Phone className="mr-2 h-4 w-4" />
+                  Appeler
                 </button>
               </a>
-              <a href={`https://wa.me/${company.whatsapp}?text=${devisText}`} target="_blank" rel="noreferrer">
-                <button className="flex h-14 w-full items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-base font-black text-white transition hover:bg-white/10">
-                  <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
+
+              <a
+                href={`https://wa.me/${company.whatsapp}?text=${devisText}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <button className="flex h-14 w-full items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-base font-black text-white">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  WhatsApp
                 </button>
               </a>
             </div>
@@ -189,247 +227,202 @@ export default function Page() {
       </section>
 
       <main className="mx-auto max-w-md space-y-5 px-4 pb-28">
+
+        {/* QR CODE */}
         {showQr && (
-          <section className="rounded-[30px] border border-[#5498ff]/40 bg-gradient-to-b from-[#0b111d]/95 to-[#05080e]/95 p-5 text-center shadow-[0_0_0_1px_rgba(83,154,255,.40),0_0_34px_rgba(18,147,255,.24)]">
-            <p className="mb-2 text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">Mode prospection</p>
-            <h2 className="text-3xl font-black tracking-[-0.03em]">Scannez pour demander un devis</h2>
-            <p className="mx-auto mt-2 max-w-xs text-sm leading-snug text-[#b8c4d8]">Présente ce QR Code depuis ton iPhone. Le client arrive directement sur la page BS Klyn.</p>
-            <div className="mx-auto mt-5 w-full max-w-[270px] rounded-[28px] border border-[#5498ff]/40 bg-white p-4 shadow-[0_0_32px_rgba(18,147,255,.28)]">
-              <img src={qrUrl} alt="QR Code BS Klyn" className="h-full w-full rounded-2xl" />
+          <section className="rounded-[30px] border border-[#5498ff]/40 bg-gradient-to-b from-[#0b111d]/95 to-[#05080e]/95 p-5 text-center">
+            <p className="mb-2 text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">
+              Mode prospection
+            </p>
+
+            <h2 className="text-3xl font-black">
+              Scannez pour demander un devis
+            </h2>
+
+            <div className="mx-auto mt-5 w-full max-w-[270px] rounded-[28px] bg-white p-4">
+              <img
+                src={qrUrl}
+                alt="QR Code BS Klyn"
+                className="w-full rounded-2xl"
+              />
             </div>
-            <button onClick={() => setShowQr(false)} className="mt-5 flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] text-sm font-black text-white">
+
+            <button
+              onClick={() => setShowQr(false)}
+              className="mt-5 flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] text-sm font-black text-white"
+            >
               Masquer QR
             </button>
           </section>
         )}
 
         {!showQr && (
-          <button onClick={() => setShowQr(true)} className="flex w-full items-center justify-center rounded-2xl border border-[#5498ff]/35 bg-white/5 px-4 py-4 text-sm font-black text-[#eaf3ff] shadow-[0_0_0_1px_rgba(83,154,255,.20),0_0_18px_rgba(18,147,255,.12)]">
-            <QrCode className="mr-2 h-4 w-4" /> Afficher le QR Code
+          <button
+            onClick={() => setShowQr(true)}
+            className="flex w-full items-center justify-center rounded-2xl border border-[#5498ff]/35 bg-white/5 px-4 py-4 text-sm font-black"
+          >
+            <QrCode className="mr-2 h-4 w-4" />
+            Afficher le QR Code
           </button>
         )}
 
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            [ShieldCheck, "Soin"],
-            [Clock, "Rapide"],
-            [Star, "Brillant"],
-          ].map(([Icon, label]) => {
-            const IconComponent = Icon as typeof ShieldCheck;
-            return (
-              <div key={String(label)} className="rounded-[22px] border border-white/10 bg-gradient-to-b from-[#0a111d]/95 to-[#070c16]/95 p-4 text-center shadow-[0_0_0_1px_rgba(83,154,255,.25),0_0_20px_rgba(18,147,255,.14)]">
-                <IconComponent className="mx-auto mb-2 h-6 w-6 text-[#1293ff]" />
-                <p className="text-xs font-black text-[#eaf3ff]">{String(label)}</p>
-              </div>
-            );
-          })}
-        </div>
+        {/* FORMULAIRE */}
+        <section className="rounded-[28px] border border-[#5498ff]/30 bg-gradient-to-b from-[#08101c]/95 to-[#05080e]/95 p-5">
 
-        <section className="rounded-[28px] border border-white/10 bg-gradient-to-b from-[#0a111d]/95 to-[#070c16]/95 p-5 shadow-[0_0_0_1px_rgba(83,154,255,.35),0_0_24px_rgba(18,147,255,.18)]">
-          <p className="mb-2 text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">Prestations</p>
-          <h2 className="text-3xl font-black tracking-[-0.03em]">Vitres propres, image pro.</h2>
-          <div className="mt-4 space-y-3">
-            {[
-              [Home, "Maisons & appartements", "Vitres, baies vitrées, miroirs et accès courants."],
-              [Building2, "Commerces & bureaux", "Vitrines, locaux professionnels, entretien régulier."],
-              [Sparkles, "Remise en état", "Après travaux, traces tenaces, nettoyage ponctuel."],
-            ].map(([Icon, title, text]) => {
-              const IconComponent = Icon as typeof Home;
-              return (
-                <div key={String(title)} className="flex gap-3 rounded-2xl border border-white/5 bg-white/[0.03] p-3">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[rgba(18,147,255,.12)] shadow-[0_0_0_1px_rgba(83,154,255,.30),0_0_18px_rgba(18,147,255,.14)]">
-                    <IconComponent className="h-5 w-5 text-[#1293ff]" />
-                  </div>
-                  <div>
-                    <p className="font-black text-[#f5f8ff]">{String(title)}</p>
-                    <p className="text-sm leading-snug text-[#b8c4d8]">{String(text)}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="rounded-[28px] border border-[#5498ff]/30 bg-gradient-to-b from-[#08101c]/95 to-[#05080e]/95 p-5 shadow-[0_0_0_1px_rgba(83,154,255,.35),0_0_28px_rgba(18,147,255,.2)]">
-          <div className="mb-5">
-            <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">Devis rapide ✨</p>
-            <p className="mt-2 text-sm text-[#b8c4d8]">Réponse sous 24h · Gratuit & sans engagement</p>
-          </div>
+          <p className="mb-4 text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">
+            Devis rapide
+          </p>
 
           <div className="space-y-4">
-            <Field label="Nom complet *" icon={<User className="h-5 w-5" />}>
-              <input className="form-input" placeholder="Votre nom complet" value={form.nom} onChange={(e) => update("nom", e.target.value)} />
-            </Field>
 
-            <Field label="Téléphone *" icon={<Phone className="h-5 w-5" />}>
-              <input className="form-input" placeholder="Votre numéro" value={form.telephone} onChange={(e) => update("telephone", e.target.value)} />
-            </Field>
+            <input
+              className="w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              placeholder="Nom"
+              value={form.nom}
+              onChange={(e) => update("nom", e.target.value)}
+            />
 
-            <Field label="Email" icon={<Mail className="h-5 w-5" />}>
-              <input className="form-input" placeholder="Votre email" value={form.email} onChange={(e) => update("email", e.target.value)} />
-            </Field>
+            <input
+              className="w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              placeholder="Téléphone"
+              value={form.telephone}
+              onChange={(e) => update("telephone", e.target.value)}
+            />
 
-            <div>
-              <p className="mb-2 font-bold text-white">Vous êtes ? *</p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <ChoiceCard active={form.typeClient === "Particulier"} icon={<Home className="h-5 w-5" />} title="Particulier" onClick={() => update("typeClient", "Particulier")} />
-                <ChoiceCard active={form.typeClient === "Commerce / Professionnel"} icon={<Store className="h-5 w-5" />} title="Commerce / Pro" onClick={() => update("typeClient", "Commerce / Professionnel")} />
-              </div>
-            </div>
+            <input
+              className="w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => update("email", e.target.value)}
+            />
 
-            <Field label="Combien de vitres / vitrines à nettoyer ? *" icon={<Hash className="h-5 w-5" />}>
-              <input className="form-input" placeholder="Ex : 10, 25, 50..." value={form.nombreVitres} onChange={(e) => update("nombreVitres", e.target.value)} />
-            </Field>
+            <select
+              className="w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              value={form.typeClient}
+              onChange={(e) =>
+                update(
+                  "typeClient",
+                  e.target.value as FormState["typeClient"]
+                )
+              }
+            >
+              <option>Particulier</option>
+              <option>Commerce / Professionnel</option>
+            </select>
 
-            <div>
-              <p className="mb-2 font-bold text-white">Type de prestation *</p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <ChoiceCard active={form.prestation === "Ponctuelle"} icon={<CalendarDays className="h-5 w-5" />} title="Ponctuelle" subtitle="Intervention unique" onClick={() => update("prestation", "Ponctuelle")} />
-                <ChoiceCard active={form.prestation === "Régulière"} icon={<Repeat2 className="h-5 w-5" />} title="Régulière" subtitle="Interventions récurrentes" onClick={() => update("prestation", "Régulière")} />
-              </div>
-            </div>
+            <select
+              className="w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              value={form.prestation}
+              onChange={(e) =>
+                update(
+                  "prestation",
+                  e.target.value as FormState["prestation"]
+                )
+              }
+            >
+              <option>Ponctuelle</option>
+              <option>Régulière</option>
+            </select>
 
-            <Field label="Adresse du lieu *" icon={<MapPin className="h-5 w-5" />}>
-              <input className="form-input" placeholder="Adresse complète de l’intervention" value={form.adresse} onChange={(e) => update("adresse", e.target.value)} />
-            </Field>
+            <input
+              className="w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              placeholder="Combien de vitres / vitrines ?"
+              value={form.nombreVitres}
+              onChange={(e) => update("nombreVitres", e.target.value)}
+            />
 
-            <Field label="Ville" icon={<MapPin className="h-5 w-5" />}>
-              <input className="form-input" placeholder="Ville" value={form.ville} onChange={(e) => update("ville", e.target.value)} />
-            </Field>
+            <input
+              className="w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              placeholder="Adresse"
+              value={form.adresse}
+              onChange={(e) => update("adresse", e.target.value)}
+            />
 
-            <div>
-              <div className="mb-2 flex items-end justify-between gap-3">
-                <div>
-                  <p className="font-bold text-white">Photos (optionnel)</p>
-                  <p className="text-sm text-[#b8c4d8]">Ajoutez des photos pour un devis plus précis</p>
-                </div>
-                <span className="rounded-xl border border-[#5498ff]/35 bg-white/5 px-3 py-1 text-sm font-black text-white">{photos.length}/5</span>
-              </div>
+            <textarea
+              className="min-h-32 w-full rounded-2xl border border-[#5498ff]/35 bg-[#08101c] px-4 py-4 text-white"
+              placeholder="Message"
+              value={form.message}
+              onChange={(e) => update("message", e.target.value)}
+            />
 
-              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handlePhotos(e.target.files)} />
-              <button type="button" onClick={() => fileInputRef.current?.click()} className="flex w-full items-center justify-center gap-4 rounded-2xl border border-dashed border-[#8fa5c9]/60 bg-white/[0.02] px-4 py-6 text-left transition hover:border-[#1293ff] hover:bg-white/[0.04]">
-                <UploadCloud className="h-9 w-9 text-[#b8c4d8]" />
-                <span>
-                  <span className="block text-lg font-bold text-[#eaf3ff]">Cliquez pour ajouter des photos</span>
-                  <span className="block text-sm text-[#b8c4d8]">JPG, PNG · jusqu’à 5 photos</span>
-                </span>
-              </button>
+            {/* PHOTOS */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handlePhotos(e.target.files)}
+            />
 
-              {photos.length > 0 && (
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {photos.map((photo) => (
-                    <p key={photo.name} className="truncate rounded-xl border border-[#5498ff]/25 bg-white/5 px-3 py-2 text-xs text-[#b8c4d8]">{photo.name}</p>
-                  ))}
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex w-full items-center justify-center rounded-2xl border border-dashed border-[#5498ff]/40 bg-white/[0.03] px-4 py-5 text-sm font-bold text-[#b8c4d8]"
+            >
+              <UploadCloud className="mr-2 h-5 w-5" />
+              Ajouter des photos
+            </button>
 
-            <Field label="Message complémentaire (optionnel)" icon={<Pencil className="h-5 w-5" />}>
-              <textarea className="form-input min-h-28 resize-y" placeholder="Précisez vos besoins, contraintes, accès..." value={form.message} onChange={(e) => update("message", e.target.value)} />
-            </Field>
+            {/* ENVOI */}
+            <button
+              type="button"
+              onClick={sendEmailRequest}
+              disabled={submitStatus === "sending"}
+              className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] py-5 text-base font-black text-white"
+            >
+              <Send className="mr-2 h-4 w-4" />
 
-            <div className="grid grid-cols-1 gap-3">
-              <button type="button" onClick={sendEmailRequest} disabled={submitStatus === "sending"} className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] py-5 text-base font-black text-white shadow-[0_0_0_1px_rgba(83,154,255,.35),0_0_24px_rgba(18,147,255,.25)] transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60">
-                <Send className="mr-2 h-5 w-5" /> {submitStatus === "sending" ? "Envoi en cours..." : "Envoyer ma demande de devis"}
-              </button>
-              <a href={`https://wa.me/${company.whatsapp}?text=${devisText}`} target="_blank" rel="noreferrer">
-                <button className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#2ee86f] to-[#13a84d] py-4 text-sm font-black text-white shadow-[0_10px_28px_rgba(0,0,0,.35)] transition hover:scale-[1.02]">
-                  <MessageCircle className="mr-2 h-4 w-4" /> Envoyer aussi par WhatsApp
-                </button>
-              </a>
-            </div>
+              {submitStatus === "sending"
+                ? "Envoi..."
+                : "Envoyer ma demande"}
+            </button>
 
             {submitStatus === "success" && (
-              <p className="flex items-center justify-center gap-2 rounded-2xl border border-green-400/30 bg-green-500/10 px-4 py-3 text-center text-sm font-bold text-green-200">
-                <Check className="h-4 w-4" /> Votre demande a été envoyée. Réponse garantie sous 24h !
+              <p className="rounded-2xl border border-green-400/30 bg-green-500/10 px-4 py-3 text-center text-sm font-bold text-green-200">
+                Demande envoyée avec succès ✅
               </p>
             )}
 
             {submitStatus === "error" && (
               <p className="rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-center text-sm font-bold text-red-200">
-                Merci de remplir au minimum : nom, téléphone, nombre de vitres et adresse.
+                Merci de remplir les champs obligatoires.
               </p>
             )}
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-white/10 bg-gradient-to-b from-[#0a111d]/95 to-[#070c16]/95 p-5 text-sm font-semibold text-[#b8c4d8] shadow-[0_0_0_1px_rgba(83,154,255,.25),0_0_20px_rgba(18,147,255,.14)]">
+        {/* CONTACT */}
+        <section className="rounded-[28px] border border-white/10 bg-gradient-to-b from-[#0a111d]/95 to-[#070c16]/95 p-5 text-sm font-semibold text-[#b8c4d8]">
           <div className="space-y-3">
-            <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-[#1293ff]" /> {company.city}</div>
-            <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-[#1293ff]" /> {company.phone}</div>
-            <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-[#1293ff]" /> {company.email}</div>
-            <a className="flex items-center gap-2 text-[#31a2ff]" href={company.website} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-4 w-4" /> Site web BS Klyn
+
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-[#1293ff]" />
+              {company.city}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-[#1293ff]" />
+              {company.phone}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-[#1293ff]" />
+              {company.email}
+            </div>
+
+            <a
+              className="flex items-center gap-2 text-[#31a2ff]"
+              href={company.website}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Site web BS Klyn
             </a>
           </div>
         </section>
       </main>
-
-      <div className="fixed bottom-3 left-3 right-3 z-50 mx-auto grid max-w-md grid-cols-2 gap-3">
-        <a href={`tel:${company.phone}`} className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] text-base font-black text-white shadow-[0_10px_28px_rgba(0,0,0,.35),0_0_24px_rgba(18,147,255,.25)]">
-          <Phone className="mr-2 h-4 w-4" /> Appeler
-        </a>
-        <a href={`https://wa.me/${company.whatsapp}?text=${devisText}`} target="_blank" rel="noreferrer" className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-b from-[#2ee86f] to-[#13a84d] text-base font-black text-white shadow-[0_10px_28px_rgba(0,0,0,.35)]">
-          <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
-        </a>
-      </div>
-
-      <style jsx global>{`
-        .form-input {
-          width: 100%;
-          border-radius: 18px;
-          border: 1px solid rgba(84, 152, 255, 0.35);
-          background: #08101c;
-          padding: 14px 16px 14px 52px;
-          color: white;
-          outline: none;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .form-input::placeholder {
-          color: #8fa5c9;
-        }
-        .form-input:focus {
-          border-color: #2ca0ff;
-          box-shadow: 0 0 0 4px rgba(18, 147, 255, 0.18);
-        }
-      `}</style>
     </div>
-  );
-}
-
-function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block font-bold text-white">{label}</span>
-      <span className="relative block">
-        <span className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#b8c4d8]">{icon}</span>
-        {children}
-      </span>
-    </label>
-  );
-}
-
-function ChoiceCard({ active, icon, title, subtitle, onClick }: { active: boolean; icon: React.ReactNode; title: string; subtitle?: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex min-h-[76px] items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition ${
-        active
-          ? "border-[#1293ff] bg-[#0b2a54]/70 shadow-[0_0_0_1px_rgba(18,147,255,.35),0_0_22px_rgba(18,147,255,.18)]"
-          : "border-[#5498ff]/30 bg-white/[0.03] hover:border-[#1293ff]/70"
-      }`}
-    >
-      <span className="flex items-center gap-3">
-        <span className={active ? "text-[#1293ff]" : "text-[#b8c4d8]"}>{icon}</span>
-        <span>
-          <span className="block font-black text-white">{title}</span>
-          {subtitle && <span className="block text-sm text-[#8fa5c9]">{subtitle}</span>}
-        </span>
-      </span>
-      <span className={`grid h-6 w-6 place-items-center rounded-full border ${active ? "border-[#1293ff] bg-[#1293ff]" : "border-[#8fa5c9]/60"}`}>
-        {active && <span className="h-2 w-2 rounded-full bg-white" />}
-      </span>
-    </button>
   );
 }
