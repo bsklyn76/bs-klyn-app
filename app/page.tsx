@@ -29,11 +29,14 @@ type FormState = {
   message: string;
 };
 
+type ValidationErrors = Partial<Record<keyof FormState, string>>;
+
 export default function Page() {
   const [showQr, setShowQr] = useState(true);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   const [form, setForm] = useState<FormState>({
     nom: "",
@@ -71,13 +74,47 @@ export default function Page() {
     );
   }, [form]);
 
+  const validateForm = () => {
+    const newErrors: ValidationErrors = {};
+
+    if (!form.nom.trim()) {
+      newErrors.nom = "Veuillez indiquer votre nom.";
+    }
+
+    if (!form.telephone.trim()) {
+      newErrors.telephone = "Veuillez indiquer votre numéro de téléphone.";
+    } else if (form.telephone.replace(/\s/g, "").length < 10) {
+      newErrors.telephone = "Le numéro semble trop court. Exemple : 06 69 39 84 80.";
+    }
+
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "L’adresse email semble incorrecte.";
+    }
+
+    if (!form.nombreVitres.trim()) {
+      newErrors.nombreVitres = "Veuillez indiquer environ combien de vitres ou vitrines sont à nettoyer.";
+    }
+
+    if (!form.adresse.trim()) {
+      newErrors.adresse = "Veuillez indiquer l’adresse de l’intervention.";
+    }
+
+    if (!form.ville.trim()) {
+      newErrors.ville = "Veuillez indiquer la ville.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const update = (key: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: undefined }));
     if (submitStatus !== "idle") setSubmitStatus("idle");
   };
 
   const sendEmailRequest = async () => {
-    if (!form.nom || !form.telephone || !form.nombreVitres || !form.adresse) {
+    if (!validateForm()) {
       setSubmitStatus("error");
       return;
     }
@@ -106,6 +143,7 @@ export default function Page() {
       if (!response.ok) throw new Error("Erreur");
 
       setSubmitStatus("success");
+      setErrors({});
 
       setForm({
         nom: "",
@@ -233,14 +271,25 @@ export default function Page() {
         </div>
 
         <section className="rounded-[28px] border border-[#5498ff]/30 bg-gradient-to-b from-[#08101c]/95 to-[#05080e]/95 p-5">
-          <p className="mb-4 text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">
+          <p className="mb-1 text-sm font-extrabold uppercase tracking-[0.18em] text-[#31a2ff]">
             Devis rapide
+          </p>
+          <p className="mb-4 text-sm text-[#b8c4d8]">
+            Les champs avec * sont obligatoires.
           </p>
 
           <div className="space-y-4">
-            <input className="input" placeholder="Nom" value={form.nom} onChange={(e) => update("nom", e.target.value)} />
-            <input className="input" placeholder="Téléphone" value={form.telephone} onChange={(e) => update("telephone", e.target.value)} />
-            <input className="input" placeholder="Email" value={form.email} onChange={(e) => update("email", e.target.value)} />
+            <FormField error={errors.nom}>
+              <input className={`input ${errors.nom ? "input-error" : ""}`} placeholder="Nom *" value={form.nom} onChange={(e) => update("nom", e.target.value)} />
+            </FormField>
+
+            <FormField error={errors.telephone}>
+              <input className={`input ${errors.telephone ? "input-error" : ""}`} placeholder="Téléphone *" value={form.telephone} onChange={(e) => update("telephone", e.target.value)} />
+            </FormField>
+
+            <FormField error={errors.email}>
+              <input className={`input ${errors.email ? "input-error" : ""}`} placeholder="Email" value={form.email} onChange={(e) => update("email", e.target.value)} />
+            </FormField>
 
             <select className="input" value={form.typeClient} onChange={(e) => update("typeClient", e.target.value as FormState["typeClient"])}>
               <option>Particulier</option>
@@ -252,15 +301,25 @@ export default function Page() {
               <option>Régulière</option>
             </select>
 
-            <input className="input" placeholder="Combien de vitres / vitrines ?" value={form.nombreVitres} onChange={(e) => update("nombreVitres", e.target.value)} />
-            <input className="input" placeholder="Adresse" value={form.adresse} onChange={(e) => update("adresse", e.target.value)} />
+            <FormField error={errors.nombreVitres}>
+              <input className={`input ${errors.nombreVitres ? "input-error" : ""}`} placeholder="Combien de vitres / vitrines ? *" value={form.nombreVitres} onChange={(e) => update("nombreVitres", e.target.value)} />
+            </FormField>
+
+            <FormField error={errors.adresse}>
+              <input className={`input ${errors.adresse ? "input-error" : ""}`} placeholder="Adresse *" value={form.adresse} onChange={(e) => update("adresse", e.target.value)} />
+            </FormField>
+
+            <FormField error={errors.ville}>
+              <input className={`input ${errors.ville ? "input-error" : ""}`} placeholder="Ville *" value={form.ville} onChange={(e) => update("ville", e.target.value)} />
+            </FormField>
+
             <textarea className="input min-h-32" placeholder="Message" value={form.message} onChange={(e) => update("message", e.target.value)} />
 
             <button
               type="button"
               onClick={sendEmailRequest}
               disabled={submitStatus === "sending"}
-              className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] py-5 text-base font-black text-white"
+              className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#1b8eff] to-[#005ae7] py-5 text-base font-black text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Send className="mr-2 h-4 w-4" />
               {submitStatus === "sending" ? "Envoi..." : "Envoyer ma demande"}
@@ -272,9 +331,15 @@ export default function Page() {
               </p>
             )}
 
-            {submitStatus === "error" && (
+            {submitStatus === "error" && Object.keys(errors).length > 0 && (
               <p className="rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-center text-sm font-bold text-red-200">
-                Merci de remplir les champs obligatoires.
+                Merci de corriger les champs indiqués en rouge avant d’envoyer.
+              </p>
+            )}
+
+            {submitStatus === "error" && Object.keys(errors).length === 0 && (
+              <p className="rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-center text-sm font-bold text-red-200">
+                Une erreur est survenue pendant l’envoi. Vous pouvez appeler BS Klyn directement.
               </p>
             )}
           </div>
@@ -329,6 +394,7 @@ export default function Page() {
           padding: 1rem;
           color: white;
           outline: none;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .input::placeholder {
@@ -339,7 +405,27 @@ export default function Page() {
           border-color: #2ca0ff;
           box-shadow: 0 0 0 4px rgba(18, 147, 255, 0.18);
         }
+
+        .input-error {
+          border-color: rgba(248, 113, 113, 0.9) !important;
+          box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16) !important;
+        }
       `}</style>
+    </div>
+  );
+}
+
+function FormField({
+  children,
+  error,
+}: {
+  children: React.ReactNode;
+  error?: string;
+}) {
+  return (
+    <div>
+      {children}
+      {error && <p className="mt-2 text-sm font-bold text-red-300">{error}</p>}
     </div>
   );
 }
