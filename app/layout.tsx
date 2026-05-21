@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   applicationName: "BS Klyn",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
     title: "BS Klyn",
+    statusBarStyle: "black-translucent",
   },
   icons: {
     icon: "/icon.png",
@@ -18,9 +18,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="fr">
       <body>{children}</body>

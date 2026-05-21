@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Phone,
@@ -15,7 +15,6 @@ import {
   Droplets,
   ExternalLink,
   QrCode,
-  UploadCloud,
 } from "lucide-react";
 
 type FormState = {
@@ -35,9 +34,6 @@ export default function Page() {
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
-
-  const [photos, setPhotos] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [form, setForm] = useState<FormState>({
     nom: "",
@@ -80,11 +76,6 @@ export default function Page() {
     if (submitStatus !== "idle") setSubmitStatus("idle");
   };
 
-  const handlePhotos = (files: FileList | null) => {
-    if (!files) return;
-    setPhotos(Array.from(files).slice(0, 5));
-  };
-
   const sendEmailRequest = async () => {
     if (!form.nom || !form.telephone || !form.nombreVitres || !form.adresse) {
       setSubmitStatus("error");
@@ -106,10 +97,6 @@ export default function Page() {
       formData.append("message", form.message);
       formData.append("source", "Mini app QR BS Klyn");
 
-      photos.forEach((photo, index) => {
-        formData.append(`photo_${index + 1}`, photo);
-      });
-
       const response = await fetch(formspreeEndpoint, {
         method: "POST",
         headers: { Accept: "application/json" },
@@ -119,7 +106,7 @@ export default function Page() {
       if (!response.ok) throw new Error("Erreur");
 
       setSubmitStatus("success");
-      setPhotos([]);
+
       setForm({
         nom: "",
         telephone: "",
@@ -268,17 +255,6 @@ export default function Page() {
             <input className="input" placeholder="Combien de vitres / vitrines ?" value={form.nombreVitres} onChange={(e) => update("nombreVitres", e.target.value)} />
             <input className="input" placeholder="Adresse" value={form.adresse} onChange={(e) => update("adresse", e.target.value)} />
             <textarea className="input min-h-32" placeholder="Message" value={form.message} onChange={(e) => update("message", e.target.value)} />
-
-            <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => handlePhotos(e.target.files)} />
-
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex w-full items-center justify-center rounded-2xl border border-dashed border-[#5498ff]/40 bg-white/[0.03] px-4 py-5 text-sm font-bold text-[#b8c4d8]"
-            >
-              <UploadCloud className="mr-2 h-5 w-5" />
-              Ajouter des photos {photos.length > 0 ? `(${photos.length}/5)` : ""}
-            </button>
 
             <button
               type="button"
